@@ -88,6 +88,9 @@
 				<value>com.loe.dms.spring.model.entity.ContactDetails</value>
 				<value>com.loe.dms.spring.model.entity.GalleryDetails</value>
 				<value>com.loe.dms.spring.model.entity.EventDetails</value>
+				<value>com.loe.dms.spring.model.entity.JobEntity</value>
+				<value>com.loe.dms.spring.model.entity.LocationEntity</value>
+				<value>com.loe.dms.spring.model.entity.ContactEntity</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -115,6 +118,7 @@
 	<bean id="galleriesService" class="com.loe.dms.spring.service.GalleriesServiceImpl" />
 	<bean id="registrationService" class="com.loe.dms.spring.service.RegistrationServiceImpl" />
 	<bean id="staticPageService" class="com.loe.dms.spring.service.StaticPageServiceImpl" />
+	<bean id="jobsService" class="com.loe.dms.spring.service.JobsServiceImpl" />
 
 	<bean id="activitiesDAO" class="com.loe.dms.spring.dao.ActivitiesDAOImpl">
 		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
@@ -140,7 +144,15 @@
 		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
 	</bean>
 
+	<bean id="jobDAO" class="com.loe.dms.spring.dao.JobDAOImpl">
+		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
+	</bean>
 
+	<bean id="locationsDAO" class="com.loe.dms.spring.dao.LocationsDAOImpl">
+		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
+	</bean>
 
-
+	<bean id="contactsDAO" class="com.loe.dms.spring.dao.ContactsDAOImpl">
+		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
+	</bean>
 </beans>
