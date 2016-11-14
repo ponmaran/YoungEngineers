@@ -21,7 +21,7 @@ public class LocationsDAOImpl implements LocationsDAO {
 	private static final Logger logger = LoggerFactory.getLogger(EventsDAOImpl.class);
 
 	private SessionFactory sessionFactory;
-
+	
 	public void setSessionFactory(SessionFactory sf) {
 		this.sessionFactory = sf;
 	}
@@ -46,7 +46,7 @@ public class LocationsDAOImpl implements LocationsDAO {
 			le.setCity(location.getCity());
 			
 			JobEntity jobEntity = new JobEntity();
-			jobEntity.setJobId(job.getId());
+			jobEntity.setId(job.getId());
 			le.setJob(jobEntity);
 			
 			session.save(le);			
@@ -55,7 +55,6 @@ public class LocationsDAOImpl implements LocationsDAO {
 		} finally {
 			closeSession(session);
 		}
-		System.out.println(le.getId());
 	}
 
 	@Override
@@ -66,8 +65,19 @@ public class LocationsDAOImpl implements LocationsDAO {
 
 	@Override
 	public List<Location> getLocationsOfJob(Job job) {
-		// TODO Auto-generated method stub
-		return null;
+		Session session = openSession();
+		List<Location> locations = new ArrayList<Location>();
+		Criteria criteria2 = session.createCriteria(LocationEntity.class);
+		criteria2.add(Restrictions.eq("job.id",job.getId()));
+		for(LocationEntity le : (List<LocationEntity>) criteria2.list()){
+			Location location = new Location();
+//			location.setId(le.getId());
+			location.setCountry(le.getCountry());
+			location.setState(le.getState());
+			location.setCity(le.getCity());
+			locations.add(location);
+		}
+		return locations;
 	}
 
 	@Override
@@ -75,20 +85,13 @@ public class LocationsDAOImpl implements LocationsDAO {
 		Session session = openSession();
 		List<Job> listofJobs = new ArrayList<Job>();
 		try {
-//			if(!requestParams.isEmpty()){
 			Criteria criteria = session.createCriteria(LocationEntity.class);
-//			if(requestParams.containsKey("city") && requestParams.containsKey("state")){
-			if(location.getCity() != null && location.getState() != null){
+			if(location.getCity() != null)
 				criteria.add(Restrictions.eq("city", location.getCity()));
+			if(location.getState() != null)
 				criteria.add(Restrictions.eq("state", location.getState()));
-			}
-			
-//			if(requestParams.containsKey("country")){
-			if(location.getCountry() != null){
+			if(location.getCountry() != null)
 				criteria.add(Restrictions.eq("country", location.getCountry()));
-			} else {
-				criteria.add(Restrictions.eq("country", "USA"));
-			}
 			
 			for(LocationEntity locationEntity : (List<LocationEntity>) criteria.list()){
 				JobEntity jobEntity = locationEntity.getJob();
@@ -96,27 +99,9 @@ public class LocationsDAOImpl implements LocationsDAO {
 				job.setId(jobEntity.getId());
 				job.setTitle(jobEntity.getTitle());
 				job.setDescription(jobEntity.getDescription());
-//				List<Location> locations = new ArrayList<Location>();
-//				for(LocationEntity le : jobEntity.getLocations()){
-//					Location location = new Location();
-//					location.setId(le.getId());
-//					location.setCountry(le.getCountry());
-//					location.setState(le.getState());
-//					location.setCity(le.getCity());
-//					locations.add(location);
-//				}
-//				List<Contact> contacts = new ArrayList<Contact>();
-//				for(ContactEntity ce : jobEntity.getContacts()){
-//					Contact contact = new Contact(ce.getId(),
-//							ce.getMethod(),
-//							ce.getType(),
-//							ce.getData(),null);
-//					contacts.add(contact);
-//				}
 				job.setSharedByUser(jobEntity.getSharedByUser());
 				listofJobs.add(job);
 			}
-//			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -129,7 +114,5 @@ public class LocationsDAOImpl implements LocationsDAO {
 	@Override
 	public void editLocation(Location location) {
 		// TODO Auto-generated method stub
-
 	}
-
 }

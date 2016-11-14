@@ -17,6 +17,7 @@ import com.loe.dms.spring.model.data.ErrorInfoData;
 import com.loe.dms.spring.model.data.Job;
 import com.loe.dms.spring.model.data.Location;
 import com.loe.dms.spring.model.data.ServiceResponse;
+import com.loe.dms.spring.model.entity.JobEntity;
 
 @Service
 public class JobsServiceImpl implements JobsService {
@@ -26,60 +27,41 @@ public class JobsServiceImpl implements JobsService {
 	@Inject
 	private JobDAO jobDAO;
 
-//	@Autowired(required = true)
-//	@Qualifier(value = "jobDAO")
-//	public void setJobDAO(JobDAO jobDAO) {
-//		this.jobDAO = jobDAO;
-//	}
-	
 	@Inject
 	private LocationsDAO locationsDAO;
 
-//	@Autowired(required = true)
-//	@Qualifier(value = "locationsDAO")
-//	public void setLocationsDAO(LocationsDAO locationsDAO) {
-//		this.locationsDAO = locationsDAO;
-//	}
-	
 	@Inject
 	private ContactsDAO contactsDAO;
 	
-//	@Autowired(required = true)
-//	@Qualifier(value = "locationsDAO")
-//	public void setContactsDAO(ContactsDAO contactsDAO) {
-//		this.contactsDAO = contactsDAO;
-//	}
-	
 	@Transactional
-	public ServiceResponse addJob(Job job) {
-		ServiceResponse serviceResponse = new ServiceResponse();
+	public boolean addJob(Job job) {
 		Job addedJob = jobDAO.addJob(job);
 		if(addedJob != null && addedJob.getId() != null){
 			List<Location> jobLocations = job.getLocations();
-			System.out.println("At 4 " + jobLocations.toString());
 			for(Location location : jobLocations){
-				System.out.println("At 5");
 				locationsDAO.addLocationForJob(location, addedJob);
 			}
 			
 			List<Contact> jobContacts = job.getContacts();
-			System.out.println("At 6 " + jobContacts.toString());
 			for(Contact contact : jobContacts){
-				System.out.println("At 7 ");
 				contactsDAO.addContactForJob(contact, addedJob);
 			}
 
 		} else {
-			ErrorInfoData errorInfoData = new ErrorInfoData();
-			errorInfoData.addErrorInfo("Error while adding job");
-			serviceResponse.setErrorInfoData(errorInfoData);
+			return false;
 		}
-		return serviceResponse;
+		
+		return true;
 	}
 
 	@Override
 	public List<Job> getJobsByLocation(Location location) {
-		return locationsDAO.getJobsByLocation(location);
+		List<Job> jobs = locationsDAO.getJobsByLocation(location);
+		for(Job job : jobs){
+			job.setLocations(locationsDAO.getLocationsOfJob(job));
+			job.setContacts(contactsDAO.getContactsOfJob(job));
+		}
+		return jobs;
 	}
 
 	@Transactional

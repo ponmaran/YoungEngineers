@@ -1,7 +1,5 @@
 package com.loe.dms.spring.model.entity;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,9 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "locations")
-public class LocationEntity extends AbstractBaseEntity implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class LocationEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,7 +29,7 @@ public class LocationEntity extends AbstractBaseEntity implements Serializable {
 	private String city;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "job_id", nullable = false)
+	@JoinColumn(name = "job", nullable = false)
 	private JobEntity job;
 
 	public LocationEntity(){

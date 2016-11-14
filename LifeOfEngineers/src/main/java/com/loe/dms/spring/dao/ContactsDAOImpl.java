@@ -1,9 +1,12 @@
 package com.loe.dms.spring.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +14,6 @@ import com.loe.dms.spring.model.data.Contact;
 import com.loe.dms.spring.model.data.Job;
 import com.loe.dms.spring.model.entity.ContactEntity;
 import com.loe.dms.spring.model.entity.JobEntity;
-import com.loe.dms.spring.model.entity.LocationEntity;
 
 public class ContactsDAOImpl implements ContactsDAO {
 
@@ -43,7 +45,7 @@ public class ContactsDAOImpl implements ContactsDAO {
 			ce.setData(contact.getData());
 
 			JobEntity jobEntity = new JobEntity();
-			jobEntity.setJobId(job.getId());
+			jobEntity.setId(job.getId());
 			ce.setJob(jobEntity);
 
 			session.save(ce);
@@ -52,7 +54,6 @@ public class ContactsDAOImpl implements ContactsDAO {
 		} finally {
 			closeSession(session);
 		}
-		System.out.println(ce.getId());
 	}
 
 	@Override
@@ -63,8 +64,19 @@ public class ContactsDAOImpl implements ContactsDAO {
 
 	@Override
 	public List<Contact> getContactsOfJob(Job job) {
-		// TODO Auto-generated method stub
-		return null;
+		Session session = openSession();
+		List<Contact> contacts = new ArrayList<Contact>();
+		Criteria criteria = session.createCriteria(ContactEntity.class);
+		criteria.add(Restrictions.eq("job.id",job.getId()));
+		for(ContactEntity ce : (List<ContactEntity>) criteria.list()){
+			Contact contact = new Contact();
+//			contact.setId(ce.getId());
+			contact.setMethod(ce.getMethod());
+			contact.setType(ce.getType());
+			contact.setData(ce.getData());
+			contacts.add(contact);
+		}
+		return contacts;
 	}
 
 	@Override
@@ -78,5 +90,4 @@ public class ContactsDAOImpl implements ContactsDAO {
 		// TODO Auto-generated method stub
 
 	}
-
 }

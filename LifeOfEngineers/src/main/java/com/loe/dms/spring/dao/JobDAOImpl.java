@@ -1,25 +1,13 @@
 package com.loe.dms.spring.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import com.loe.dms.spring.model.data.Contact;
-import com.loe.dms.spring.model.data.ErrorInfoData;
 import com.loe.dms.spring.model.data.Job;
-import com.loe.dms.spring.model.data.Location;
-import com.loe.dms.spring.model.entity.ContactEntity;
 import com.loe.dms.spring.model.entity.JobEntity;
-import com.loe.dms.spring.model.entity.LocationEntity;
 
 @Repository
 public class JobDAOImpl implements JobDAO {
@@ -45,21 +33,14 @@ public class JobDAOImpl implements JobDAO {
 	@Override
 	public Job addJob(Job job) {
 		Session session = openSession();
-		Transaction transaction = session.beginTransaction();
 		JobEntity jobEntity = new JobEntity();
 		try {
-			System.out.println("At 1");
-			jobEntity.setJobTitle(job.getTitle());
-			jobEntity.setJobDescription(job.getDescription());
+			jobEntity.setTitle(job.getTitle());
+			jobEntity.setDescription(job.getDescription());
 			jobEntity.setSharedByUser(job.getSharedByUser());
 			session.save(jobEntity);
-			System.out.println("At 2 " + jobEntity.getId());
-			transaction.commit();
 			session.flush();
 		} catch(Exception e){
-			if(transaction.isActive())
-				transaction.rollback();
-
 			e.printStackTrace();
 		} finally {
 			closeSession(session);
@@ -69,10 +50,14 @@ public class JobDAOImpl implements JobDAO {
 
 	@Override
 	public void mergeJob(Job job) {
-		Session session = null;
+		Session session = openSession();
+		JobEntity jobEntity = new JobEntity();
 		try {
-			session = openSession();
-			session.merge(job);
+			jobEntity.setId(job.getId());
+			jobEntity.setTitle(job.getTitle());
+			jobEntity.setDescription(job.getDescription());
+			jobEntity.setSharedByUser(job.getSharedByUser());
+			session.merge(jobEntity);
 			session.flush();
 		} finally {
 			closeSession(session);
@@ -98,57 +83,5 @@ public class JobDAOImpl implements JobDAO {
 			closeSession(session);
 		}
 		return job;
-	}
-	
-	@Override
-	public List<Job> getJobs(Map<String, String> requestParams) {
-		Session session = null;
-		List<Job> listofJobs = new ArrayList<Job>();
-		try {
-			session = openSession();
-			if(!requestParams.isEmpty()){
-				Criteria criteria = session.createCriteria(Location.class);
-				if(requestParams.containsKey("city") && requestParams.containsKey("state")){
-					criteria.add(Restrictions.eq("city", requestParams.get("city")));
-					criteria.add(Restrictions.eq("state", requestParams.get("state")));
-				}
-				
-				if(requestParams.containsKey("country")){
-					criteria.add(Restrictions.eq("country", requestParams.get("country")));
-				}
-				
-				for(JobEntity jobEntity : (List<JobEntity>) criteria.list()){
-					Job job = new Job();
-					job.setId(jobEntity.getId());
-					job.setTitle(jobEntity.getTitle());
-					job.setDescription(jobEntity.getDescription());
-					List<Location> locations = new ArrayList<Location>();
-					for(LocationEntity le : jobEntity.getLocations()){
-						Location location = new Location();
-						location.setId(le.getId());
-						location.setCountry(le.getCountry());
-						location.setState(le.getState());
-						location.setCity(le.getCity());
-						locations.add(location);
-					}
-					List<Contact> contacts = new ArrayList<Contact>();
-					for(ContactEntity ce : jobEntity.getContacts()){
-						Contact contact = new Contact(ce.getId(),
-								ce.getMethod(),
-								ce.getType(),
-								ce.getData(),null);
-						contacts.add(contact);
-					}
-					job.setSharedByUser(jobEntity.getSharedByUser());
-					listofJobs.add(job);
-				}
-			}
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-		finally {
-			closeSession(session);
-		}
-		return listofJobs;
 	}
 }

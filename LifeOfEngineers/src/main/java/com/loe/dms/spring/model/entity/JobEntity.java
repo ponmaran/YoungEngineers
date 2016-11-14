@@ -1,6 +1,5 @@
 package com.loe.dms.spring.model.entity;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -16,41 +15,50 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-@Entity
-@Table(name = "job")//@IdClass(JobPK.class)
-public class JobEntity extends AbstractBaseEntity implements Serializable {
+import com.sun.jmx.snmp.Timestamp;
 
-	private static final long serialVersionUID = 1L;
-	
+@Entity
+@Table(name = "job")
+public class JobEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "job_id")
-	private Long jobId;
+	@Column(name = "id")
+	private Long id;
+
+	@Column(name = "title")
+	private String title;
+	
+	@Column(name = "description")
+	private String description;
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sharedByUser")
+	private Users sharedByUser;
+	
+	@Column(name = "start_time")
+	private Timestamp startTime;
+	
+	@Column(name = "end_time")
+	private Timestamp endTime;
+
+	@Column(name = "update_time")
+	private Timestamp updatedTime;
 
 	@Transient
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "job")
 	private List<LocationEntity> locations;
 	
-	@Column(name = "job_title")
-	private String jobTitle;
-	
-	@Column(name = "job_desc")
-	private String jobDescription;
-	
 	@Transient
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "job")
 	private List<ContactEntity> contacts;
 	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "shared_by_user")
-	private Users sharedByUser;
-	
 	public Long getId(){
-		return this.jobId;
+		return this.id;
 	}
 	
-	public void setJobId(Long jobId){
-		this.jobId = jobId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 	
 	public List<LocationEntity> getLocations(){
@@ -62,19 +70,19 @@ public class JobEntity extends AbstractBaseEntity implements Serializable {
 	}
 	
 	public String getTitle(){
-		return this.jobTitle;
+		return this.title;
 	}
 	
-	public void setJobTitle(String jobTitle){
-		this.jobTitle = jobTitle;
+	public void setTitle(String title){
+		this.title = title;
 	}
 	
 	public String getDescription(){
-		return jobDescription;
+		return description;
 	}
 	
-	public void setJobDescription(String jobDescription){
-		this.jobDescription = jobDescription;
+	public void setDescription(String description){
+		this.description = description;
 	}
 	
 	public List<ContactEntity> getContacts(){
@@ -91,5 +99,29 @@ public class JobEntity extends AbstractBaseEntity implements Serializable {
 	
 	public void setSharedByUser(Users sharedByUser){
 		this.sharedByUser = sharedByUser;
+	}
+
+	public Timestamp getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
+	}
+
+	public Timestamp getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
+	}
+
+	public Timestamp getUpdatedTime() {
+		return updatedTime;
+	}
+
+	public void setUpdatedTime(Timestamp updatedTime) {
+		this.updatedTime = updatedTime;
 	}
 }

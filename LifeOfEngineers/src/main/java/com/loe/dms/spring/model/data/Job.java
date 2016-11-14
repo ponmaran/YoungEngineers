@@ -1,14 +1,13 @@
 package com.loe.dms.spring.model.data;
 
-import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.loe.dms.spring.model.entity.Users;
 
-public class Job implements Serializable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Job {
 
-	private static final long serialVersionUID = 1L;
-	
 	private Long id;
 	private String title;
 	private String description;
